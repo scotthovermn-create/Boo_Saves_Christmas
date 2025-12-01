@@ -1,4 +1,4 @@
-# main.py - North Pole Invaders - BULLETPROOF & PERFECT!
+# main.py - North Pole Invaders - BULLETPROOF & PERFECT! WITH SOUND EFFECTS!
 import pygame
 import random
 import math
@@ -39,8 +39,9 @@ player_x = float(WIDTH // 2 - 40)
 player_y = HEIGHT - 100
 player_speed = 8.0
 bullet_speed = 12
-invader_speed = 1.5  # SMOOTH FLOAT NOW!
+invader_speed = 1.5  # SMOOTH FLOAT NOW! INCREASES WITH LEVEL
 invader_drop = 25
+invader_level = 0
 
 def load_image(name, scale=None):
     path = os.path.join("assets", name)
@@ -72,6 +73,39 @@ player_img = load_image("player_sleigh.png", (80, 60))
 bullet_img = load_image("gift.png", (20, 30))
 invader_images = [tree_img, snowman_img, reindeer_img, santa_img, santa_img]
 
+# Safe sounds (add these WAV files to your assets/ folder for full effect!)
+shoot_sound = None
+hit_sound = None
+drop_sound = None
+lose_life_sound = None
+victory_sound = None
+game_over_sound = None
+try:
+    shoot_sound = pygame.mixer.Sound(os.path.join("assets", "twinkling.wav"))
+    shoot_sound.set_volume(0.3)
+    
+    hit_sound = pygame.mixer.Sound(os.path.join("assets", "hit.wav"))
+    hit_sound.set_volume(0.4)
+    
+    drop_sound = pygame.mixer.Sound(os.path.join("assets", "drop.wav"))
+    drop_sound.set_volume(0.3)
+    
+    lose_life_sound = pygame.mixer.Sound(os.path.join("assets", "lose_life.wav"))
+    lose_life_sound.set_volume(0.5)
+    
+    victory_sound = pygame.mixer.Sound(os.path.join("assets", "victory.wav"))
+    victory_sound.set_volume(0.6)
+    
+    game_over_sound = pygame.mixer.Sound(os.path.join("assets", "game_over.wav"))
+    game_over_sound.set_volume(0.4)
+    
+    # Looping background music (optional, keeps playing through resets)
+    pygame.mixer.music.load(os.path.join("assets", "bg_music.wav"))
+    pygame.mixer.music.set_volume(0.15)
+    pygame.mixer.music.play(-1)
+except:
+    pass  # No audio files? No problem! Game still works perfectly.
+
 # Background & stars
 background = pygame.Surface((WIDTH, HEIGHT))
 background.fill(NIGHT_BLUE)
@@ -79,7 +113,7 @@ for _ in range(200): pygame.draw.circle(background, WHITE, (random.randint(0,WID
 stars = [(random.randint(0,WIDTH), random.randint(0,100), random.randint(1,3)) for _ in range(80)]
 
 def reset_invaders():
-    global invaders, invader_direction
+    global invaders, invader_direction, invader_speed, invader_level
     invaders.clear()
     for row in range(5):
         for col in range(10):
@@ -89,22 +123,16 @@ def reset_invaders():
             rect = pygame.Rect(x, y, img.get_width(), img.get_height())
             invaders.append({"x": x, "y": y, "rect": rect, "img": img, "type": row})
     invader_direction = 1
+    invader_speed = 1.5
+    invader_level = 0
 
 def reset_game():
-    global score, lives, game_over, victory, bullets, player_x, invaders, invader_direction
+    global score, lives, game_over, victory, bullets, player_x
     score = 0; lives = 3; game_over = False; victory = False
     bullets.clear(); player_x = float(WIDTH//2 - 40)
     reset_invaders()
 
 reset_game()
-
-# Safe sound
-shoot_sound = None
-try:
-    shoot_sound = pygame.mixer.Sound(os.path.join("assets", "twinkling.wav"))
-    shoot_sound.set_volume(0.3)
-except:
-    pass  # No audio? No problem!
 
 running = True
 while running:
@@ -123,7 +151,10 @@ while running:
             if event.key == pygame.K_SPACE and not game_over and not victory:
                 bullets.append(pygame.Rect(player_x + 35, player_y, 20, 30))
                 if shoot_sound: shoot_sound.play()
-            if event.key == pygame.K_r and (game_over or victory): reset_game()
+            if event.key == pygame.K_r and (game_over or victory): 
+                reset_game()
+                # Optional: restart music (uncomment if you want it to restart on new game)
+                # try: pygame.mixer.music.play(-1); except: pass
 
     if not game_over and not victory:
         # Player
@@ -140,7 +171,6 @@ while running:
         move_down = False
         for inv in invaders:
             inv["x"] += invader_direction * invader_speed
-            inv["y"] = inv["y"]  # Keep y stable until drop
             inv["rect"].x = inv["x"]
             inv["rect"].y = inv["y"]
             if inv["rect"].right >= WIDTH or inv["rect"].left <= 0: move_down = True
@@ -152,10 +182,20 @@ while running:
                 inv["y"] += invader_drop
                 inv["rect"].y = inv["y"]
                 if inv["rect"].top > player_y: lost_life = True
+            
+            # Level up speed + play drop sound (subtle tension builder!)
+            invader_level += 1
+            invader_speed = 1.5 + 0.3 * invader_level
+            if drop_sound: drop_sound.play()
+            
             if lost_life:
+                if lose_life_sound: lose_life_sound.play()
                 lives -= 1
-                if lives <= 0: game_over = True
-                else: reset_invaders()
+                if lives <= 0: 
+                    game_over = True
+                    if game_over_sound: game_over_sound.play()
+                else: 
+                    reset_invaders()
 
         # Collisions
         for b in bullets[:]:
@@ -164,35 +204,29 @@ while running:
                     invaders.remove(inv)
                     bullets.remove(b)
                     score += 10 if inv["type"] < 4 else 50
+                    if hit_sound: hit_sound.play()
                     break
             else: continue
             break
 
-        if len(invaders) == 0: victory = True
+        if len(invaders) == 0: 
+            victory = True
+            if victory_sound: victory_sound.play()
 
     # Draw
     screen.blit(player_img, (int(player_x), player_y))  # Int for blit
     for b in bullets: screen.blit(bullet_img, (b.x, b.y))
     for inv in invaders: screen.blit(inv["img"], (int(inv["x"]), int(inv["y"])))  # Int for blit
 
-    # UI + DEBUG
+    # UI + DEBUG (now shows level too!)
     score_text = font.render(f"Score: {score}", True, GOLD)
     lives_text = font.render(f"Lives: {lives}", True, RED)
-    debug_text = font.render(f"Invaders: {len(invaders)} | Speed: {invader_speed}", True, WHITE)
+    debug_text = font.render(f"Invaders: {len(invaders)} | Speed: {invader_speed:.1f} | Level: {invader_level}", True, WHITE)
     screen.blit(score_text, (10,10))
     screen.blit(lives_text, (WIDTH-200,10))
     screen.blit(debug_text, (10,50))
 
     # "Merry Christmas" at the TOP of the screen
-    # merry_text = font.render("Merry Christmas", True, GOLD)                    # uses normal 36pt font
-    # text_rect = merry_text.get_rect(center=(WIDTH // 2, 40))                  # 40 pixels from top
-    # pygame.draw.rect(screen, DARK_GREEN, (text_rect.x-15, text_rect.y-8, 
-    #                                      text_rect.width+30, text_rect.height+16))
-    # pygame.draw.rect(screen, WHITE, (text_rect.x-10, text_rect.y-3, 
-    #                                 text_rect.width+20, text_rect.height+6), 2)
-    # screen.blit(merry_text, text_rect)
-
-      # === REAL FESTIVE FONT FOR EVERYTHING ===
     try:
         christmas_font_big   = pygame.font.Font("assets/JandaChristmasDoodles.ttf", 72)  # Title
         christmas_font_med   = pygame.font.Font("assets/JandaChristmasDoodles.ttf", 56)  # Victory main lines
@@ -225,8 +259,6 @@ while running:
         screen.blit(over_text, over_text.get_rect(center=(WIDTH//2, HEIGHT//2-30)))
         screen.blit(font.render("Press R to Restart", True, WHITE), (WIDTH//2-150, HEIGHT//2+30))
 
-
-        # === VICTORY SCREEN WITH SAME FESTIVE FONT ===
     elif victory:
         lines = [
             "Blitzen the Reindeer & You",
@@ -266,19 +298,10 @@ while running:
 
         restart = christmas_font_small.render("Press R to Save Christmas Again!", True, WHITE)
         screen.blit(restart, restart.get_rect(center=(WIDTH // 2, HEIGHT - 100)))
-        
-        # OLD ELFIN VICTORY
-        # win_text = big_font.render("YOU SAVED CHRISTMAS!", True, GOLD)
-        # screen.blit(win_text, win_text.get_rect(center=(WIDTH//2, HEIGHT//2-30)))
-        # screen.blit(font.render("Press R for More!", True, WHITE), (WIDTH//2-150, HEIGHT//2+30))
-
     
     # Tiny "Controls" text at bottom center
-    controls_text = font.render("← → Move    Space = Fire", True, (200, 200, 200))  # light gray
-    # Make it much smaller
     small_font = pygame.font.SysFont("arial", 18, bold=False)   # 18pt = very small
     controls_surf = small_font.render("← → Move    Space = Fire", True, (220, 220, 220))
-    
     controls_rect = controls_surf.get_rect(center=(WIDTH // 2, HEIGHT - 20))  # 20px from bottom
     screen.blit(controls_surf, controls_rect)
 
