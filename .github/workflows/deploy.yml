@@ -1,4 +1,4 @@
-name: Build and Deploy North Pole Invaders
+name: Build and Deploy Boo Saves Christmas
 
 on:
   push:
