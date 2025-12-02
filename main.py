@@ -243,15 +243,15 @@ while running:
     screen.blit(title_surf, title_rect)
 
     # Twinkling lights around the title (same as before)
-    for i in range(32):
-        angle = i * 0.196
-        radius = 110 + 12 * math.sin(pygame.time.get_ticks() * 0.004 + i)
-        x = WIDTH // 2 + math.cos(angle) * radius
-        y = 60 + math.sin(angle) * 45
-        brightness = 180 + 75 * math.sin(pygame.time.get_ticks() * 0.007 + i)
-        col = [(255,0,0),(0,255,0),(255,215,0),(0,255,255),(255,100,200)][i%5]
-        color = tuple(min(255, int(c * brightness/255)) for c in col)
-        pygame.draw.circle(screen, color, (int(x), int(y)), 5)
+    # for i in range(32):
+    #    angle = i * 0.196
+    #    radius = 110 + 12 * math.sin(pygame.time.get_ticks() * 0.004 + i)
+    #    x = WIDTH // 2 + math.cos(angle) * radius
+    #    y = 60 + math.sin(angle) * 45
+    #    brightness = 180 + 75 * math.sin(pygame.time.get_ticks() * 0.007 + i)
+    #    col = [(255,0,0),(0,255,0),(255,215,0),(0,255,255),(255,100,200)][i%5]
+    #    color = tuple(min(255, int(c * brightness/255)) for c in col)
+    #    pygame.draw.circle(screen, color, (int(x), int(y)), 5)
     
     # Overlays
     if game_over:
@@ -261,10 +261,10 @@ while running:
 
     elif victory:
         lines = [
-            "Blitzen the Reindeer & You",
-            "Have Saved CHRISTMAS",
-            "from the Evil Grinch!",
-            "The Skies are Clear Again!"
+            "Blitzen the Reindeer and You",
+            "Have Saved CHRISTMAS! Hooray!",
+            "Gifts and NOEL Wishes are on",
+            "the way. Guided by Shining Stars"
         ]
 
         # Use the real Christmas font!
