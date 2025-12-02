@@ -2,16 +2,70 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Boo Saves Christmas</title>
+    
     <style>
-        body { margin:0; background:#000; overflow:hidden; }
-        canvas { image-rendering: pixelated; }
+        /* This styles the loading screen (before the game starts) */
+        body {
+            margin: 0;
+            height: 100vh;
+            background: #0a1a2e;                    /* dark christmas-y blue */
+            /* or use your own image:
+            background: url('loading_bg.jpg') center/cover no-repeat;
+            */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #ffdddd;
+            font-family: Arial, Helvetica, sans-serif;
+            overflow: hidden;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #f44;
+        }
+        
+        progress {
+            width: 60%;
+            height: 20px;
+            border-radius: 10px;
+            background: #222;
+        }
+        
+        progress::-webkit-progress-bar {
+            background: #222;
+            border-radius: 10px;
+        }
+        
+        progress::-webkit-progress-value {
+            background: linear-gradient(90deg, #ff0000, #00ff00);
+            border-radius: 10px;
+        }
+        
+        progress::-moz-progress-bar {
+            background: linear-gradient(90deg, #ff0000, #00ff00);
+            border-radius: 10px;
+        }
+
+        /* This styles the actual game canvas once it loads */
+        #pygame-canvas {
+            image-rendering: pixelated;
+        }
     </style>
 </head>
 <body>
-<script src="https://cdn.jsdelivr.net/pygbag/latest/pygbag.min.js"></script>
-<script>
-    pygbag.main({ url: "main.py", fullscreen: false });
-</script>
+
+    <h1>Boo Saves Christmas</h1>
+    <progress id="pygame-progress" value="0" max="100"></progress>
+    <p id="pygame-status">Loading assets...</p>
+
+    <script src="https://cdn.jsdelivr.net/pygbag/latest/pygbag.min.js"></script>
+    <script>
+        pygbag.main({ archive: ".", fullscreen: false });
+    </script>
 </body>
 </html>
