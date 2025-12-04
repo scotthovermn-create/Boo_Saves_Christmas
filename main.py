@@ -73,38 +73,21 @@ player_img = load_image("player_sleigh.png", (80, 60))
 bullet_img = load_image("gift.png", (20, 30))
 invader_images = [tree_img, snowman_img, reindeer_img, santa_img, santa_img]
 
-# Safe sounds (add these WAV files to your assets/ folder for full effect!)
-shoot_sound = None
-hit_sound = None
-drop_sound = None
-lose_life_sound = None
-victory_sound = None
-game_over_sound = None
-try:
-    shoot_sound = pygame.mixer.Sound(os.path.join("assets", "twinkling.wav"))
-    shoot_sound.set_volume(0.3)
-    
-    hit_sound = pygame.mixer.Sound(os.path.join("assets", "hit.wav"))
-    hit_sound.set_volume(0.4)
-    
-    drop_sound = pygame.mixer.Sound(os.path.join("assets", "drop.wav"))
-    drop_sound.set_volume(0.3)
-    
-    lose_life_sound = pygame.mixer.Sound(os.path.join("assets", "lose_life.wav"))
-    lose_life_sound.set_volume(0.5)
-    
-    victory_sound = pygame.mixer.Sound(os.path.join("assets", "victory.wav"))
-    victory_sound.set_volume(0.6)
-    
-    game_over_sound = pygame.mixer.Sound(os.path.join("assets", "game_over.wav"))
-    game_over_sound.set_volume(0.4)
-    
-    # Looping background music (optional, keeps playing through resets)
-    pygame.mixer.music.load(os.path.join("assets", "bg_music.wav"))
-    pygame.mixer.music.set_volume(0.15)
-    pygame.mixer.music.play(-1)
-except:
-    pass  # No audio files? No problem! Game still works perfectly.
+
+# ────────────────────── SOUND LOADING (put this near the top) ──────────────────────
+shoot_sound = pygame.mixer.Sound(os.path.join("assets", "twinkling.wav"))
+shoot_sound.set_volume(0.4)
+
+lose_life_sound = pygame.mixer.Sound(os.path.join("assets", "lose_life.wav"))
+lose_life_sound.set_volume(0.5)
+
+victory_sound = pygame.mixer.Sound(os.path.join("assets", "victory.wav"))
+victory_sound.set_volume(0.6)
+
+game_over_sound = pygame.mixer.Sound(os.path.join("assets", "game_over.wav"))  # if you have this one too
+game_over_sound.set_volume(0.6)
+# ───────────────────────────────────────────────────────────────────────────────────
+
 
 # Background & stars
 background = pygame.Surface((WIDTH, HEIGHT))
@@ -186,7 +169,7 @@ while running:
             # Level up speed + play drop sound (subtle tension builder!)
             invader_level += 1
             invader_speed = 1.5 + 0.3 * invader_level
-            if drop_sound: drop_sound.play()
+            #if drop_sound: drop_sound.play()
             
             if lost_life:
                 if lose_life_sound: lose_life_sound.play()
@@ -204,7 +187,7 @@ while running:
                     invaders.remove(inv)
                     bullets.remove(b)
                     score += 10 if inv["type"] < 4 else 50
-                    if hit_sound: hit_sound.play()
+                   # if hit_sound: hit_sound.play()
                     break
             else: continue
             break
@@ -238,8 +221,8 @@ while running:
         christmas_font_small = pygame.font.SysFont("comicsansms", 44)
 
     # "Merry Christmas" at the top — now REAL cursive!
-    title_surf = christmas_font_big.render("Merry Christmas", True, GOLD)
-    title_rect = title_surf.get_rect(center=(WIDTH // 2, 60))
+    title_surf = christmas_font_med.render("Merry Christmas", True, GREEN)
+    title_rect = title_surf.get_rect(center=(WIDTH // 2, 40))
     screen.blit(title_surf, title_rect)
 
     # Twinkling lights around the title (same as before)
